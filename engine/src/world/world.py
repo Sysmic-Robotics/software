@@ -57,3 +57,6 @@ class World():
             return self.robots_blue[id]
         elif(team == TeamColor.YELLOW):
             return self.robots_yellow[id]
+    
+    def get_robots_blue(self) -> list[RobotData]:
+        return self.robots_blue.values()

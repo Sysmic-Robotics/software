@@ -7,7 +7,7 @@ from sysmic_kit import *
 import time
 from comms.sender.grsim import Grsim
 import math
-import random
+from ui.ui import UI
 
 # Initialize world
 world : World = World(1,1)
@@ -21,6 +21,7 @@ time.sleep(1)
 robot : Robot = Robot(0, TeamColor.BLUE, world)
 
 grsim = Grsim()
+ui : UI = UI(world)
 
 def generate_circular_path():
     points = []
@@ -33,9 +34,15 @@ def generate_circular_path():
     return points
 
 path = generate_circular_path()
-
+path.append(path[0] )
+path = [Vector2(0,0), Vector2(2,2.5), Vector2(2.5,-2) ]
 while True:
+    data = robot.get_data()
     finish = robot.testing_follow_path(path)
     if finish:
-        path = generate_circular_path()
+        break
+    if not ui.loop():
+        break
+
+print("Finish")
 

@@ -15,7 +15,7 @@ class LinearControl:
         self.goal : Vector2 = Vector2(10000,10000)
 
         #Kinematic model a_max and v_max
-        self.A_MAX = 2.5
+        self.A_MAX = 10
         self.V_MAX = 5
 
         #Utility

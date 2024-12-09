@@ -5,7 +5,7 @@ from constants import *
 from ai.robot import Robot
 from sysmic_kit import *
 import time
-from debug_tools.robot_plot import RobotPlot
+from ui.ui import UI
 
 # Initialize world
 world : World = World(1,1)
@@ -13,17 +13,18 @@ vision : Vision = Vision(VISION_IP, VISION_PORT, world)
 vision_t = threading.Thread(target=vision.loop)
 vision_t.start()
 
-time.sleep(1)
-
-plot = RobotPlot()
 robot : Robot = Robot(0, TeamColor.BLUE, world)
-
+ui : UI = UI(world)
 # Game loop
-point = Vector2(4,0)
+time_t = time.time()
+path = [Vector2(0,0), Vector2(0,2)]
+
 while True:
     data = robot.get_data()
-    plot.update_plot(data)
-    finish = robot.move_to(point)
+    finish = robot.testing_follow_path(path)
     if finish:
-        point = -1*point
-print("FINISH ")
+        break
+    if not ui.loop():
+        break
+    
+print("Finish")
