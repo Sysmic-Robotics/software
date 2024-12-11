@@ -39,26 +39,8 @@ class Trajectory2D:
 
     def get_next_velocity(self, t : float) -> Vector2:
         if self.trajectory["traj_x"] == None and self.trajectory["traj_y"] == None:
-            #print("No solution found, returning Vector 0,0")
             return Vector2(0,0)
         x_sol = [Vector2(p[0], p[1]) for p in self.trajectory["traj_x"].get_solution()]
         y_sol = [Vector2(p[0], p[1]) for p in self.trajectory["traj_y"].get_solution()]
-        velocity = Vector2(0,0)
-        if len(x_sol) > 1:
-            velocity.x = self.interpolate_points(x_sol[0], x_sol[1], t)
-        if len(y_sol) > 1:
-            velocity.y = self.interpolate_points(y_sol[0], y_sol[1], t)
+        velocity = Vector2(x_sol[-1].y, y_sol[-1].y )
         return velocity
-
-
-    def interpolate_points(self, p1: Vector2, p2 : Vector2, x : float):
-        if p1.x > p2.x:
-            raise ValueError("point 1 x must be greater than point 2 x")
-        # Handle out-of-bounds cases
-        if x <= p1.x:
-            return p1.y
-        elif x >= p2.x:
-            return p2.y
-        # Linear interpolation formula
-        m = (p1.y - p2.y) / (p1.x - p2.x)
-        return m * (x - p1.x) + p1.y

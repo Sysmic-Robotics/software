@@ -29,13 +29,13 @@ def generate_circular_path():
     n_points = 8
     for i in range(0,n_points):
         theta = 2*(math.pi/n_points)*i
-        point = center + Vector2(0,1).rotate(theta)
+        point = center + Vector2(0,1.5).rotate(theta)
         points.append(point)
     return points
 
 path = generate_circular_path()
 path.append(path[0] )
-path = [Vector2(0,0), Vector2(2,2.5), Vector2(2.5,-2) ]
+path = [Vector2(0,0)]#, Vector2(2,2.5), Vector2(2.5,-2) ]
 while True:
     data = robot.get_data()
     finish = robot.testing_follow_path(path)

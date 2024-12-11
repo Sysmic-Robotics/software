@@ -15,7 +15,7 @@ class LinearControl:
         self.goal : Vector2 = Vector2(10000,10000)
 
         #Kinematic model a_max and v_max
-        self.A_MAX = 10
+        self.A_MAX = 4
         self.V_MAX = 5
 
         #Utility
@@ -44,7 +44,7 @@ class LinearControl:
         pos = data.position
         t = 1/60
         new_traj = Trajectory2D(self.A_MAX, self.V_MAX, v, pos, self.goal)
-        v : Vector2 = new_traj.get_next_velocity(t/2)
+        v : Vector2 = new_traj.get_next_velocity(t*1.5)
         local_v = v.rotate(-data.orientation)
         RobotComms().send_robot_data(data.id, data.team, vel=local_v)    
         # Change the point to not desaccelerate
