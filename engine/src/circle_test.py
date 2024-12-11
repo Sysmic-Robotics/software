@@ -35,7 +35,7 @@ def generate_circular_path():
 
 path = generate_circular_path()
 path.append(path[0] )
-path = [Vector2(0,0)]#, Vector2(2,2.5), Vector2(2.5,-2) ]
+path = [Vector2(0,0), Vector2(-1,0), Vector2(-1.5,-1), Vector2(-2,0) , Vector2(-3,-1)  ]
 while True:
     data = robot.get_data()
     finish = robot.testing_follow_path(path)

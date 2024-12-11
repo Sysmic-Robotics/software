@@ -37,10 +37,10 @@ class Trajectory2D:
                 min_alpha = mid_alpha
 
 
-    def get_next_velocity(self, t : float) -> Vector2:
+    def get_next_velocity(self) -> Vector2:
         if self.trajectory["traj_x"] == None and self.trajectory["traj_y"] == None:
             return Vector2(0,0)
-        x_sol = [Vector2(p[0], p[1]) for p in self.trajectory["traj_x"].get_solution()]
-        y_sol = [Vector2(p[0], p[1]) for p in self.trajectory["traj_y"].get_solution()]
-        velocity = Vector2(x_sol[-1].y, y_sol[-1].y )
+        x_sol = Vector2.from_tuple(self.trajectory["traj_x"].get_solution())
+        y_sol = Vector2.from_tuple(self.trajectory["traj_y"].get_solution())
+        velocity = Vector2(x_sol.y, y_sol.y)
         return velocity

@@ -48,11 +48,8 @@ class Trajectory1D:
     def tf(self) -> float:
         return self.states[-1].t
 
-    def get_solution(self) -> list[tuple[float, float]]:
-        trajectory = []
-        for s in self.states:
-            trajectory.append((s.t, s.v))
-        return trajectory
+    def get_solution(self) -> tuple[float, float]:
+        return self.states[-1].t , self.states[-1].v
 
 class Constraints:
     def __init__(self, a_max, v_max):
