@@ -1,23 +1,51 @@
 from control.control import Control
 from sysmic_kit import *
 from comms.sender.robot_coms import RobotComms
-from control.PID import PID
+import math
+import time
 
 
 class AngularControl(Control):
 
-    def __init__(self, id, team, angle):
+    def __init__(self, id, team, data : RobotData, angle : float):
         super().__init__(id, team)
+        # Normalize angle, to avoid negative angles
+        angle = abs(angle)%(math.pi*2)
+        robot_angle = data.orientation
+        if robot_angle < 0:
+            robot_angle += math.pi*2
         self.to_angle = angle
-        self.PID = PID(1,0.5, angle)
+        self.PID = PID(1, 0, self.to_angle)
+        
 
-    def control(self, current_angle : float):
+    def control(self, data : RobotData) -> bool:
         super().control()
         
-
-        vel : float = self.PID.compute(current_angle)
-        RobotComms().send_robot_data(self.id, self.team, velangular=vel)
-        if abs(self.to_angle - current_angle) > 0.02:
-            return False
+        # Normalize angle, to avoid negative angles
+        robot_angle = data.orientation
+        if robot_angle < 0:
+            robot_angle += math.pi*2
         
+        vel : float = self.PID.compute(robot_angle)
+        RobotComms().send_robot_data(self.id, self.team, velangular = vel)
+        if abs(self.to_angle - robot_angle) > 0.052:
+            return False
         return True
+
+
+class PID:
+    def __init__(self, kP, kI, set_point):
+        self.kP = kP
+        self.kI = kI
+        self.last_time = time.time()
+        self.set_point = set_point
+        self.i = 0
+
+    def compute(self, measurement):
+        error = self.set_point - measurement
+        error = (error - math.pi) % math.pi*2 + math.pi if abs(error) > math.pi else error
+        p = self.kP*error
+        self.i = self.i + self.kI*error*(time.time() - self.last_time)
+        self.last_time = time.time()
+        PI = p + self.i
+        return PI

@@ -74,6 +74,20 @@ class Vector2:
             return math.acos(dot_product / mag_product)
         raise TypeError("Argument must be an instance of Vector2")
     
+    def angle_with_x_axis(self):
+        """
+        Calculate the angle between a 2D vector and the positive x-axis.
+
+        Parameters:
+            vector (tuple): A tuple representing the vector (x, y).
+
+        Returns:
+            float: Angle in degrees.
+        """
+        x, y = self.x, self.y
+        angle = math.atan2(y, x)
+        return angle if angle >= 0 else angle + math.pi*2
+    
     def rotate(self, angle : float):
         """Rotate the angle in radians"""
         x = self.x*math.cos(angle) - self.y*math.sin(angle)
