@@ -19,11 +19,16 @@ ui : UI = UI(world)
 time_t = time.time()
 time.sleep(1)
 
+from ai.skills.move_to_ball import MoveToBall
+
+move_to_ball = MoveToBall(robot)
+
 while True:    
     ui.loop()
-    finish = robot.testing_follow_path( [Vector2(-1.672, -0.72), Vector2(-1.41,0), Vector2(0,0)])
+    move_to_ball.loop()
+    #finish = robot.testing_follow_path( [Vector2(-1.672, -0.72), Vector2(-1.41,0), Vector2(0,0)])
     #finish = robot.face_to(Vector2(0,0))
-    if finish:
-        break
+    #if finish:
+    #    break
     
 print("Finish")

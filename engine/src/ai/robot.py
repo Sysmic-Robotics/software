@@ -18,6 +18,10 @@ class Robot:
     def get_data(self) -> RobotData:
         self._update_data()
         return self.data
+    
+    def get_position(self) -> Vector2:
+        data = self.get_data()
+        return data.position
 
     def _update_data(self):
         self.data : RobotData = self.world.get_robot(self.id, self.team)
@@ -38,6 +42,7 @@ class Robot:
         return False
 
     def move_to(self, point : Vector2):
+        # TO DO: Change move_to -> loop_move_to
         """ Go to point avoiding any obstacle """
         self._update_data()
         """ This function is planned to be used in a loop > FRAME_RATE """
@@ -52,7 +57,7 @@ class Robot:
             self.in_task = False
             return True
         return False
-
+        
     def face_to(self, point : Vector2) -> bool:
         data = self.get_data()
         if not self.in_task:

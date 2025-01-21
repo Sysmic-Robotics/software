@@ -20,9 +20,11 @@ class World():
         """Number of blue robots, Number of yellow robots"""
         if hasattr(self, "initialized") and self.initialized:
             return  # Prevent reinitialization
+        self.initialized = True  # Mark the instance as initialized
+        
         self.robots_blue : dict[RobotData] = {}
         self.robots_yellow : dict[RobotData] = {}
-        self.ball : BallData
+        self.ball : BallData = BallData()
         # Create robots
         for id in range(0, n_blues):
             self.robots_blue[id] = self._create_robot(id, TeamColor.BLUE) 
@@ -38,6 +40,9 @@ class World():
         new_robot = RobotData(id, TeamColor.BLUE)
         new_robot.team = team
         return new_robot
+    
+    def _vision_ball_update(self, ball : Vector2):
+        self.ball.position = ball
 
     def _vision_robot_update(self, new_data : RobotData):
         if(not self._robot_exist(new_data.id, new_data.team)):
@@ -68,6 +73,9 @@ class World():
             return self.robots_blue[id]
         elif(team == TeamColor.YELLOW):
             return self.robots_yellow[id]
+    
+    def get_ball_pos(self) -> Vector2:
+        return self.ball.position
     
     def get_robots_blue(self) -> list[RobotData]:
         return self.robots_blue.values()

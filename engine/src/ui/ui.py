@@ -15,6 +15,7 @@ BACKGROUND = (165,172,175)
 WHITE = (0,20,51)
 RED = (51,20,51)
 BLACK = (0, 0, 0)
+ORANGE = (255,165,0)
 
 class UI:
     def __init__(self, world: World):
@@ -72,6 +73,10 @@ class UI:
         #if len(self.robot_trace) > 100:
         #    self.robot_trace.pop(0)
         self.draw_trace(self.robot_trace)
+        
+    def draw_ball(self, x, y):
+        screen_x, screen_y = self.field_to_screen(x, y)
+        pygame.draw.circle(self.screen, ORANGE, (screen_x, screen_y), 5)
             
     def draw_trace(self,trace):
         for i in range(1, len(trace)):
@@ -93,6 +98,8 @@ class UI:
                 self.draw_robot(r.position.x, r.position.y, r.orientation,WHITE)  # Robot to the top-right
                 self.display_velocity(r.velocity.x, r.velocity.y )
             
+            ball_pos = self.world.get_ball_pos()
+            self.draw_ball( ball_pos.x, ball_pos.y )
 
             # Update the display
             pygame.display.flip()

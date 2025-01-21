@@ -86,7 +86,7 @@ class Vision:
         self._update_world(robots_blue.values(), robots_yellow.values(), self.ball)
     
 
-    def _update_world(self, blue : list[SSL_DetectionRobot], yellow : list[SSL_DetectionRobot], ball):
+    def _update_world(self, blue : list[SSL_DetectionRobot], yellow : list[SSL_DetectionRobot], ball : SSL_DetectionBall):
         for robot in blue:
             data = RobotData(robot.robot_id, TeamColor.BLUE)
             data.position = Vector2(robot.x/1000,robot.y/1000)
@@ -99,3 +99,5 @@ class Vision:
             data.orientation = robot.orientation
             data.last_time_update = time.time()
             self.world._vision_robot_update(data)
+        
+        self.world._vision_ball_update( Vector2(ball.x/1000, ball.y/1000) )
