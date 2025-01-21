@@ -6,10 +6,10 @@ from control.angular_control import AngularControl
 import math
 
 class Robot:
-    def __init__(self, id : int, team : TeamColor, world : World):
+    def __init__(self, id : int, team : TeamColor):
         self.id = id
         self.team = team
-        self.world = world
+        self.world = World()
         self.data : RobotData = self.world.get_robot(id, team)
         self.control : LinearControl = LinearControl(id, team)
         self.in_task = False
@@ -53,7 +53,6 @@ class Robot:
             return True
         return False
 
-
     def face_to(self, point : Vector2) -> bool:
         data = self.get_data()
         if not self.in_task:
@@ -69,8 +68,7 @@ class Robot:
         if result:
             self.in_task = False
             return True
-        return False
-        
+        return False    
 
     def rotate_to(self, angle_rads : float) -> bool:
         data = self.get_data()

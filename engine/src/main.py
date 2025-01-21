@@ -13,15 +13,16 @@ vision : Vision = Vision(VISION_IP, VISION_PORT, world)
 vision_t = threading.Thread(target=vision.loop)
 vision_t.start()
 
-robot : Robot = Robot(0, TeamColor.BLUE, world)
-#ui : UI = UI(world)
+robot : Robot = Robot(0, TeamColor.BLUE)
+ui : UI = UI(world)
 # Game loop
 time_t = time.time()
 time.sleep(1)
 
-
-while True:
-    finish = robot.face_to(Vector2(0,0))
+while True:    
+    ui.loop()
+    finish = robot.testing_follow_path( [Vector2(-1.672, -0.72), Vector2(-1.41,0), Vector2(0,0)])
+    #finish = robot.face_to(Vector2(0,0))
     if finish:
         break
     

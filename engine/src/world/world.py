@@ -6,9 +6,20 @@
 
 from sysmic_kit import *
 
+
+
 class World():
-    def __init__(self, n_blues : int, n_yellow : int) -> None:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(World, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self, n_blues: int = 6, n_yellow: int = 6) -> None:
         """Number of blue robots, Number of yellow robots"""
+        if hasattr(self, "initialized") and self.initialized:
+            return  # Prevent reinitialization
         self.robots_blue : dict[RobotData] = {}
         self.robots_yellow : dict[RobotData] = {}
         self.ball : BallData

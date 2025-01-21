@@ -35,6 +35,7 @@ time.sleep(0.5)
 test_failed = []
 while True:
     finish = robot.move_to(Vector2(0,0))
+    print(robot.data.position)
     if finish:
         error = robot.data.position.distance_to(next_point)
         if error > 0.05:

@@ -11,7 +11,7 @@ WINDOW_HEIGHT = FIELD_HEIGHT + 2 * MARGIN
 LINE_WIDTH = 2
 
 # Colors
-GREEN = (165,172,175)
+BACKGROUND = (165,172,175)
 WHITE = (0,20,51)
 RED = (51,20,51)
 BLACK = (0, 0, 0)
@@ -44,7 +44,7 @@ class UI:
     # Draw the field
     def draw_field(self):
         # Fill background
-        self.screen.fill(GREEN)
+        self.screen.fill(BACKGROUND)
 
         # Field boundaries
         pygame.draw.rect(
@@ -54,25 +54,17 @@ class UI:
             LINE_WIDTH,
         )
 
-        # Center circle
-        #center = self.field_to_screen(0, 0)
-        #pygame.draw.circle(self.screen, WHITE, center, FIELD_HEIGHT // 6, LINE_WIDTH)
-
-        # Halfway line
-        #pygame.draw.line(
-        #    self.screen,
-        #    WHITE,
-        #    self.field_to_screen(-FIELD_WIDTH // 2, 0),
-        #    self.field_to_screen(FIELD_WIDTH // 2, 0),
-        #    LINE_WIDTH,
-        #)
-
 
     # Draw a robot
-    def draw_robot(self, x, y, color):
+    def draw_robot(self, x, y, orientation, color):
         robot_radius = 15  # Arbitrary radius in pixels
         screen_x, screen_y = self.field_to_screen(x, y)
         pygame.draw.circle(self.screen, color, (screen_x, screen_y), robot_radius)
+        
+        init_line = (screen_x, screen_y)
+        
+        final_line = (screen_x + robot_radius*math.cos(-orientation) , screen_y + robot_radius*math.sin(-orientation))
+        pygame.draw.line(self.screen, BACKGROUND, init_line, final_line, width=2)
         # Add the robot's position to the trace
         self.robot_trace.append((x, y))
 
@@ -98,7 +90,7 @@ class UI:
             self.draw_field()
 
             for r in self.world.get_robots_blue():
-                self.draw_robot(r.position.x, r.position.y, WHITE)  # Robot to the top-right
+                self.draw_robot(r.position.x, r.position.y, r.orientation,WHITE)  # Robot to the top-right
                 self.display_velocity(r.velocity.x, r.velocity.y )
             
 
