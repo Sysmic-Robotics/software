@@ -1,7 +1,8 @@
 import pygame
 from world.world import World
-from sysmic_kit.entities import *
-from sysmic_kit.geometry import *
+from comms.vision.vision import Vision
+from sysmic_kit import *
+import math
 # Constants
 FIELD_WIDTH = 900  # in cm (9m)
 FIELD_HEIGHT = 600  # in cm (6m)
@@ -18,7 +19,7 @@ BLACK = (0, 0, 0)
 ORANGE = (255,165,0)
 
 class UI:
-    def __init__(self, world: World):
+    def __init__(self, world: World, vision : Vision):
         # Initialize pygame
         pygame.init()
         # Initialize the display
@@ -27,6 +28,7 @@ class UI:
         self.running = True
         self.clock = pygame.time.Clock()
         self.world = world
+        self.vision = vision
         self.robot_trace = []
         self.font = pygame.font.Font(None, 36)  # Default pygame font, size 36
 
@@ -42,6 +44,11 @@ class UI:
         text_surface = self.font.render(text, True, WHITE)
         self.screen.blit(text_surface, (10, 10))  # Top-left corner of the screen
     
+    def display_vision_packets(self, time):
+        text = f"Vision last packet:{time:.3f} [s]"
+        text_surface = self.font.render(text, True, WHITE)
+        self.screen.blit(text_surface, (400, 10))  # Top-left corner of the screen
+    
     # Draw the field
     def draw_field(self):
         # Fill background
@@ -54,7 +61,6 @@ class UI:
             (MARGIN, MARGIN, FIELD_WIDTH, FIELD_HEIGHT),
             LINE_WIDTH,
         )
-
 
     # Draw a robot
     def draw_robot(self, x, y, orientation, color):
@@ -91,7 +97,6 @@ class UI:
                 if event.type == pygame.QUIT:
                     self.running = False
 
-
             self.draw_field()
 
             for r in self.world.get_robots_blue():
@@ -100,6 +105,7 @@ class UI:
             
             ball_pos = self.world.get_ball_pos()
             self.draw_ball( ball_pos.x, ball_pos.y )
+            self.display_vision_packets(self.vision.time_between_packet)
 
             # Update the display
             pygame.display.flip()

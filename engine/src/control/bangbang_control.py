@@ -45,7 +45,7 @@ class LinearControl:
         new_traj = Trajectory2D(self.A_MAX, self.V_MAX, v, pos, self.goal)
         v : Vector2 = new_traj.get_next_velocity()
         local_v = v.rotate(-data.orientation)
-        RobotComms().send_robot_data(data.id, data.team, vel=local_v)   
+        RobotComms().send_robot_velocity(data.id, data.team, velocity=local_v)
          
         # Change the point to not desaccelerate
         if len(self.path) != 0 and self.is_near_to_break(data, self.goal):

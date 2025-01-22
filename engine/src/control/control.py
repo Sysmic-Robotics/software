@@ -13,7 +13,6 @@ class Control:
         self.active = True
         self.frequency = 1/60
 
-
     def control(self) -> bool:
         """This function is planned to be used in a loop > 60Hz"""
         # Run each FRAME_RATE [s]

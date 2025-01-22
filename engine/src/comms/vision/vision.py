@@ -33,8 +33,7 @@ class Vision:
 
         # For debug purposes
         self.last_packet_time = time.time()
-
-        self.last_frame = -1
+        self.time_between_packet = 0
 
     def loop(self):
         while True:
@@ -61,9 +60,9 @@ class Vision:
         except socket.timeout:
             # Expected to timeout when there are no more packets
             pass
-        if DEBUG:
-            time_difference = (current_time - self.last_packet_time)
-            print(f"\rTime between packets: {time_difference:.4f} [s]", end="")
+        #if DEBUG:
+        self.time_between_packet = (current_time - self.last_packet_time)
+        #print(f"\rTime between packets: {time_difference:.4f} [s]", end="")
         if packets:
             self.last_packet_time = current_time
             #print(len(packets))
@@ -76,8 +75,7 @@ class Vision:
             det = packet.detection # paquete con detección desreferenciado
             # Update ball
             for ball in det.balls:
-                if ball.confidence >= self.ball.confidence:
-                    self.ball = ball
+                self.ball = ball
             # Update robots
             for robot_data in det.robots_blue:
                 robots_blue[robot_data.robot_id] = robot_data
@@ -85,7 +83,6 @@ class Vision:
                 robots_yellow[robot_data.robot_id] = robot_data
         self._update_world(robots_blue.values(), robots_yellow.values(), self.ball)
     
-
     def _update_world(self, blue : list[SSL_DetectionRobot], yellow : list[SSL_DetectionRobot], ball : SSL_DetectionBall):
         for robot in blue:
             data = RobotData(robot.robot_id, TeamColor.BLUE)

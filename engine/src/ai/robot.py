@@ -2,6 +2,7 @@ from sysmic_kit import *
 from control.bangbang_control import LinearControl
 from world.world import World
 from ai.task import TaskState
+from comms.sender.robot_coms import RobotComms
 from control.angular_control import AngularControl
 import math
 
@@ -11,10 +12,12 @@ class Robot:
         self.team = team
         self.world = World()
         self.data : RobotData = self.world.get_robot(id, team)
-        self.control : LinearControl = LinearControl(id, team)
-        self.in_task = False
+        self.linear_control : LinearControl = LinearControl(id, team)
+        self.in_linear_task = False
+        self.in_angular_task = False
         self.angular_control = None
-    
+        self.robot_comms = RobotComms()
+         
     def get_data(self) -> RobotData:
         self._update_data()
         return self.data
@@ -30,14 +33,14 @@ class Robot:
         """ Follow path for testing """
         self._update_data()
         """ This function is planned to be used in a loop > FRAME_RATE """
-        if not self.in_task:
+        if not self.in_linear_task:
             # Creathe new task
-            self.control.set_path(path, self.data)
-            self.in_task = True
-        result = self.control.follow_path(self.data)
+            self.linear_control.set_path(path, self.data)
+            self.in_linear_task = True
+        result = self.linear_control.follow_path(self.data)
         # Task finished
         if result:
-            self.in_task = False
+            self.in_linear_task = False
             return True
         return False
 
@@ -46,45 +49,48 @@ class Robot:
         """ Go to point avoiding any obstacle """
         self._update_data()
         """ This function is planned to be used in a loop > FRAME_RATE """
-        if not self.in_task:
+        if not self.in_linear_task:
             # Creathe new task
             path = [self.data.position, point]
-            self.control.set_path(path, self.data)
-            self.in_task = True
-        result = self.control.follow_path(self.data)
+            self.linear_control.set_path(path, self.data)
+            self.in_linear_task = True
+        result = self.linear_control.follow_path(self.data)
         # Task finished
         if result:
-            self.in_task = False
+            self.in_linear_task = False
             return True
         return False
         
     def face_to(self, point : Vector2) -> bool:
         data = self.get_data()
-        if not self.in_task:
+        if not self.in_angular_task:
             # Creathe new task
             angle_rads = (point - data.position).angle_with_x_axis()
             if angle_rads < 0:
                 angle_rads += math.pi*2
             angle_rads = angle_rads%( math.pi*2 )
             self.angular_control = AngularControl(self.id, self.team, data, angle_rads)
-            self.in_task = True
+            self.in_angular_task = True
         result = self.angular_control.control(data)
         # Task finished
         if result:
-            self.in_task = False
+            self.in_angular_task = False
             return True
         return False    
 
     def rotate_to(self, angle_rads : float) -> bool:
         data = self.get_data()
-        if not self.in_task:
+        if not self.in_angular_task:
             # Creathe new task
             angle_rads = angle_rads%( math.pi*2 )
             self.angular_control = AngularControl(self.id, self.team, data, angle_rads)
-            self.in_task = True
+            self.in_angular_task = True
         result = self.angular_control.control(data)
         # Task finished
         if result:
-            self.in_task = False
+            self.in_angular_task = False
             return True
         return False
+    
+    def spinner(self, vel : float) -> float:
+        self.robot_comms.send_robot_spinner(self.id, self.team, vel)

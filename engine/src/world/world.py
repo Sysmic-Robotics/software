@@ -7,7 +7,6 @@
 from sysmic_kit import *
 
 
-
 class World():
     _instance = None
 
