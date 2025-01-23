@@ -13,7 +13,10 @@ class Robot:
         self.world = World()
         self.data : RobotData = self.world.get_robot(id, team)
         self.linear_control : LinearControl = LinearControl(id, team)
+        
         self.in_linear_task = False
+        self.task_point : Vector2 = Vector2(1000,1000)
+        
         self.in_angular_task = False
         self.angular_control = None
         self.robot_comms = RobotComms()
@@ -48,16 +51,15 @@ class Robot:
         # TO DO: Change move_to -> loop_move_to
         """ Go to point avoiding any obstacle """
         self._update_data()
-        """ This function is planned to be used in a loop > FRAME_RATE """
-        if not self.in_linear_task:
+        
+        #if self.task_point.distance_to(point) > 0.01:
             # Creathe new task
-            path = [self.data.position, point]
-            self.linear_control.set_path(path, self.data)
-            self.in_linear_task = True
+        path = [point]
+        self.linear_control.set_path(path, self.data)
+        self.task_point = point
         result = self.linear_control.follow_path(self.data)
         # Task finished
         if result:
-            self.in_linear_task = False
             return True
         return False
         

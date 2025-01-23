@@ -27,6 +27,7 @@ class FiniteStateMachine():
     def _set_state(self, new_state : State):
         if self.debug == True:
             print("Transition to: ", new_state.get_name())
+        self.exit_state(self.state, new_state)
         self.enter_state(self.state, new_state)
         self.state = new_state
            
@@ -35,5 +36,9 @@ class FiniteStateMachine():
         pass
     
     def enter_state(self, from_state, to_state):
+        """ Overrides with custom state enter"""
+        pass
+    
+    def exit_state(self, from_state, to_state):
         """ Overrides with custom state enter"""
         pass

@@ -36,10 +36,11 @@ class LinearControl:
             return True
         current_time = time.time()
         delta = current_time - self.last_time
-        if delta < 1/60:
+        if delta < FRAME_RATE:
             return False
         self.last_time = current_time
 
+        
         v = data.velocity
         pos = data.position
         new_traj = Trajectory2D(self.A_MAX, self.V_MAX, v, pos, self.goal)
@@ -52,7 +53,7 @@ class LinearControl:
             self.goal = self.path.pop(0)
             return False
         # Finish control
-        elif len(self.path) == 0 and pos.distance_to(self.goal) < 0.05:
+        elif len(self.path) == 0 and pos.distance_to(self.goal) < 0.02:
             self.active = False
             return True
 

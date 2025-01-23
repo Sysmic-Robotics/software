@@ -82,7 +82,7 @@ class Vector2:
             vector (tuple): A tuple representing the vector (x, y).
 
         Returns:
-            float: Angle in degrees.
+            float: Angle in radians.
         """
         x, y = self.x, self.y
         angle = math.atan2(y, x)

@@ -45,7 +45,9 @@ class RobotComms:
                                                 vel= packet['velocity'],
                                                 spinner= packet['spinner'],
                                                 wheelsspeed= packet['wheelsspeed'])
-                    self.robot_packets[robot_id]["has_data"] = False
+                    self.robot_packets[robot_id]["has_data"] = self.create_packet(packet['id'],
+                                                                                  packet['team'])
+                    
 
     def send_robot_velocity(self, id : int, team : TeamColor, velocity : Vector2):
         robot_id = str(id) + '-' + str(team.value)
@@ -59,8 +61,8 @@ class RobotComms:
         if not(robot_id in self.robot_packets.keys()):
             self.create_packet(id, team)
         self.robot_packets[robot_id]["has_data"] = True
-        self.robot_packets[robot_id]["angular"] = velocity
-        
+        self.robot_packets[robot_id]["angular"] = velocity    
+    
     def create_packet(self, id : int, team : TeamColor):
         robot_id = str(id) + '-' + str(team.value)
         self.robot_packets[robot_id] = {}
