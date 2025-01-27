@@ -91,5 +91,12 @@ class RobotComms:
             self.create_packet(id, team)
         self.robot_packets[robot_id]["has_data"] = True
         self.robot_packets[robot_id]["spinner"] = spinner
+    
+    def send_robot_kick(self, id : int, team : TeamColor, kick : int):
+        robot_id = str(id) + '-' + str(team.value)
+        if not(robot_id in self.robot_packets.keys()):
+            self.create_packet(id, team)
+        self.robot_packets[robot_id]["has_data"] = True
+        self.robot_packets[robot_id]["kick_x"] = kick
             
     

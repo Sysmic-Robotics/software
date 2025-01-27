@@ -96,3 +96,6 @@ class Robot:
     
     def spinner(self, vel : float) -> float:
         self.robot_comms.send_robot_spinner(self.id, self.team, vel)
+
+    def kick(self, power : int):
+        self.robot_comms.send_robot_kick(self.id, self.team, power)

@@ -28,6 +28,25 @@ time.sleep(1)
 
 kick_the_ball = KickTheBall(robot)
 
+class FPSCounter:
+    def __init__(self):
+        self.start_time = time.time()
+        self.frame_count = 0
+
+    def update(self):
+        self.frame_count += 1
+        current_time = time.time()
+        elapsed_time = current_time - self.start_time
+
+        # Update and print FPS every second
+        if elapsed_time >= 1.0:
+            fps = self.frame_count / elapsed_time
+            print(f"FPS: {fps:.2f}")
+            self.start_time = current_time
+            self.frame_count = 0
+
+fps_counter = FPSCounter()
 while True:    
     ui.loop()
     kick_the_ball.loop()
+    fps_counter.update()

@@ -21,5 +21,7 @@ class RobotData:
         self.position : Vector2 = Vector2(0,0) # Position m, m
         self.velocity : Vector2 = Vector2(0,0) # m/s
 
+        self.angular_velocity : float = 0
+
         self.is_active = True
         self.last_time_update = 0 # in seconds

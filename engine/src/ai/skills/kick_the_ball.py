@@ -1,6 +1,8 @@
 from sysmic_kit import *
 from ai.robot import Robot
 from world.world import World
+from ai.fsm.fsm import FiniteStateMachine, State
+from ai.fsm.transition_utils import TransitionUtils
 import math
 
 class Stop(State):
@@ -67,6 +69,17 @@ class TouchBall(State):
         
         self.robot.spinner(10)
         self.robot.move_to(pos)
+    
+class Kick(State):
+    def __init__(self, name, robot : Robot):
+        super().__init__(name)
+        self.world = World()
+        self.robot = robot
+    
+    def loop(self):
+        # Get ball position
+        self.robot.spinner(0)
+        self.robot.kick(2)
 
 
 class KickTheBall(FiniteStateMachine):
@@ -78,6 +91,7 @@ class KickTheBall(FiniteStateMachine):
         self.states["aim_ball"] = AimBall("aim_ball", robot)
         self.states["touch_ball"] = TouchBall("touch_ball", robot)
         self.states["dribble"] = Dribble("dribble", robot)
+        self.states["kick"] = Kick("kick", robot)
         
         # Set initial states
         self.state = self.states["stop"]
@@ -97,7 +111,8 @@ class KickTheBall(FiniteStateMachine):
         elif state_name == "aim_ball":
             if self.robot.get_data().position.distance_to( self.world.ball.position) > 0.18:
                 return self.states["approach"]
-            elif abs ( (self.world.ball.position - self.robot.get_data().position).angle_with_x_axis() - self.robot.data.orientation % (2 * math.pi) ) < 0.17:
+            elif TransitionUtils.is_facing_point(self.robot, self.world.ball.position) and \
+                abs(self.robot.data.angular_velocity) <= 0.01:
                 return self.states["touch_ball"]
         
         elif state_name == "touch_ball":
@@ -109,6 +124,15 @@ class KickTheBall(FiniteStateMachine):
         elif state_name == "dribble":
             if (self.robot.get_data().position.distance_to( self.world.ball.position) >= 0.36):
                 return self.states["approach"]
-            elif abs( (self.world.ball.position - self.robot.get_data().position).angle_with_x_axis() - self.robot.data.orientation % (2 * math.pi) ) > 0.17:
+            elif not TransitionUtils.is_facing_point(self.robot, self.world.ball.position):
                 return self.states["approach"]
+            elif TransitionUtils.is_facing_point(self.robot, Vector2(0,0)) and  \
+            TransitionUtils.is_facing_point(self.robot, self.world.ball.position) and \
+            abs(self.robot.data.angular_velocity) <= 0.01:
+                return self.states["kick"]
+
+        elif state_name == "kick":
+            if (self.robot.get_data().position.distance_to( self.world.ball.position) >= 0.18/2 + 0.025):
+                return self.states["approach"]
+        
         return None 

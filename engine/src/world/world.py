@@ -50,9 +50,11 @@ class World():
         robot : RobotData = self.get_robot(new_data.id, new_data.team)
         delta_t = new_data.last_time_update - robot.last_time_update
         robot.velocity = (new_data.position - robot.position)/(delta_t)
+        robot.angular_velocity = (new_data.orientation - robot.orientation)/(delta_t)
         robot.position = new_data.position
         robot.orientation = new_data.orientation
         robot.last_time_update = new_data.last_time_update
+
         if(robot.team == TeamColor.BLUE):
             self.robots_blue[new_data.id] = robot
         elif(robot.team == TeamColor.YELLOW):
