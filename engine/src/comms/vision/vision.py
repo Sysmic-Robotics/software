@@ -1,24 +1,16 @@
 from comms.vision.proto_compiled import *
 import socket, threading, time
 from constants import *
-from world.world import World
 from sysmic_kit import *
+import queue
 
 ListPackets = list[SSL_WrapperPacket]
 
 class Vision:
     """ Deserializa packetes de vision """
-    _instance = None
-    _lock = threading.Lock()
 
-    def __new__(cls, *args, **kwargs):
-        with cls._lock:
-            if not cls._instance:
-                cls._instance = super().__new__(cls)
-        return cls._instance
-
-    def __init__(self, multi_cast_address, port_ssl, world : World):
-        self.world = world
+    def __init__(self, multi_cast_address, port_ssl, queue : queue):
+        self.queue = queue
         self.ball: SSL_DetectionBall = SSL_DetectionBall()
 
         # Create a UDP socket
@@ -84,17 +76,23 @@ class Vision:
         self._update_world(robots_blue.values(), robots_yellow.values(), self.ball)
     
     def _update_world(self, blue : list[SSL_DetectionRobot], yellow : list[SSL_DetectionRobot], ball : SSL_DetectionBall):
-        for robot in blue:
-            data = RobotData(robot.robot_id, TeamColor.BLUE)
-            data.position = Vector2(robot.x/1000,robot.y/1000)
-            data.orientation = robot.orientation
-            data.last_time_update = time.time()
-            self.world._vision_robot_update(data)
-        for robot in yellow:
-            data = RobotData(robot.robot_id, TeamColor.YELLOW)
-            data.position = Vector2(robot.x/1000,robot.y/1000)
-            data.orientation = robot.orientation
-            data.last_time_update = time.time()
-            self.world._vision_robot_update(data)
         
-        self.world._vision_ball_update( Vector2(ball.x/1000, ball.y/1000) )
+        blue_data = []
+        for robot in blue:
+            data = RobotState(robot.robot_id, TeamColor.BLUE)
+            data.position = Vector2(robot.x/1000,robot.y/1000)
+            data.orientation = robot.orientation
+            data.last_time_update = time.time()
+            blue_data.append(data)
+        
+        yellow_data = []
+        for robot in yellow:
+            data = RobotState(robot.robot_id, TeamColor.YELLOW)
+            data.position = Vector2(robot.x/1000,robot.y/1000)
+            data.orientation = robot.orientation
+            data.last_time_update = time.time()
+            yellow_data.append(data)
+
+        ball_data = Vector2(ball.x/1000, ball.y/1000)
+        all_data = (blue_data, yellow_data, ball_data)
+        self.queue.put(all_data)

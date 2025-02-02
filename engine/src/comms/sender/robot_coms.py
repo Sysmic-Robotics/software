@@ -4,7 +4,7 @@ from comms.sender.grsim import Grsim
 from constants import *
 import threading
 from sysmic_kit import Vector2, TeamColor
-import time
+from comms.sender.radio import Radio
 
 class RobotComms:
     _instance = None
@@ -23,30 +23,47 @@ class RobotComms:
         
         if COMMUNICATION_MODE == 1:
             self.grsim = Grsim()
+        else:
+            self.radio = Radio()
         # The dictionary key is ID-Team'
         # Example: 01-0
         self.robot_packets = {}
-
-    def loop(self):
-        while True:
-            self.send_packets()
-            time.sleep(0.016)
         
     def send_packets(self):
-        for robot_id in self.robot_packets.keys():
-            if COMMUNICATION_MODE == 1:
+        if COMMUNICATION_MODE == 1:
+            for robot_id in self.robot_packets.keys():
+                    packet = self.robot_packets[robot_id]
+                    if packet["has_data"] == True:
+                        self.grsim.communicate_grsim(id= packet['id'], 
+                                                    team= packet['team'], 
+                                                    velangular= packet['angular'], 
+                                                    kickspeedx= packet['kick_x'], 
+                                                    kickspeedz= packet['kick_z'], 
+                                                    vel= packet['velocity'],
+                                                    spinner= packet['spinner'],
+                                                    wheelsspeed= packet['wheelsspeed'])
+                        # Reset packet to default
+                        self.robot_packets[robot_id]["has_data"] = self.create_packet(packet['id'],
+                                                                                    packet['team'])
+        else:
+            packets = []
+
+            for robot_id in self.robot_packets.keys():
                 packet = self.robot_packets[robot_id]
+                p = []
                 if packet["has_data"] == True:
-                    self.grsim.communicate_grsim(id= packet['id'], 
-                                                team= packet['team'], 
-                                                velangular= packet['angular'], 
-                                                kickspeedx= packet['kick_x'], 
-                                                kickspeedz= packet['kick_z'], 
-                                                vel= packet['velocity'],
-                                                spinner= packet['spinner'],
-                                                wheelsspeed= packet['wheelsspeed'])
+                    p.append(packet['id'])
+                    p.append(packet['spinner'])
+                    p.append(packet['kick_x'])
+                    p.append(packet['velocity'].x)
+                    p.append(packet['velocity'].y)
+                    p.append(packet['angular'])
+
+                    packets.append(p)
+                    # Reset packet to default
                     self.robot_packets[robot_id]["has_data"] = self.create_packet(packet['id'],
                                                                                   packet['team'])
+            self.radio.send_packets(packets)
                     
 
     def send_robot_velocity(self, id : int, team : TeamColor, velocity : Vector2):

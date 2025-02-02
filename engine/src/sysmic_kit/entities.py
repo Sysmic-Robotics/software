@@ -11,7 +11,7 @@ class BallData:
     def __init__(self):
         self.position : Vector2 = Vector2(0,0)
 
-class RobotData:
+class RobotState:
     '''Clase que representa un robot, con sus atributos de posicion y confianza'''
     def __init__(self, id : int, team : TeamColor):
         self.id = id

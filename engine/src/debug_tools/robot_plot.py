@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from sysmic_kit import RobotData
+from sysmic_kit import RobotState
 class RobotPlot:
     def __init__(self,interval=100):
         """
@@ -28,7 +28,7 @@ class RobotPlot:
         self.speed_text.set_text(f'Speed: {self.speed:.2f} m/s')
         return self.robot_dot, self.speed_text
 
-    def update_plot(self, data : RobotData):
+    def update_plot(self, data : RobotState):
         """
         Updates the plot in real-time. Use this in the main loop with plt.pause()
         to prevent blocking.

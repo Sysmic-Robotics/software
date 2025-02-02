@@ -15,13 +15,12 @@ vision : Vision = Vision(VISION_IP, VISION_PORT, world)
 vision_t = threading.Thread(target=vision.loop)
 vision_t.start()
 
-# Wait to open the simulator
+# Wait to open the simulatorself.last_time = time.time()
 time.sleep(1)
 # Game loop
-robot : Robot = Robot(0, TeamColor.BLUE, world)
+robot : Robot = Robot(0, TeamColor.BLUE)
 
 grsim = Grsim()
-ui : UI = UI(world)
 
 def generate_circular_path():
     points = []
@@ -40,8 +39,6 @@ while True:
     data = robot.get_data()
     finish = robot.testing_follow_path(path)
     if finish:
-        break
-    if not ui.loop():
         break
 
 print("Finish")

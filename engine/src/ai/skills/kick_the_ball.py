@@ -65,10 +65,11 @@ class TouchBall(State):
             self.new_pos = False
         ball : Vector2 = self.world.get_ball_pos()
         dir = (ball - self.robot.data.position).normalize()
-        pos = ball + dir*(0.18/2)
+        pos = ball + dir*(0.18/3)
         
         self.robot.spinner(10)
         self.robot.move_to(pos)
+
     
 class Kick(State):
     def __init__(self, name, robot : Robot):

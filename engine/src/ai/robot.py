@@ -5,13 +5,14 @@ from ai.task import TaskState
 from comms.sender.robot_coms import RobotComms
 from control.angular_control import AngularControl
 import math
+import time
 
 class Robot:
     def __init__(self, id : int, team : TeamColor):
         self.id = id
         self.team = team
         self.world = World()
-        self.data : RobotData = self.world.get_robot(id, team)
+        self.data : RobotState = self.world.get_robot(id, team)
         self.linear_control : LinearControl = LinearControl(id, team)
         
         self.in_linear_task = False
@@ -20,8 +21,10 @@ class Robot:
         self.in_angular_task = False
         self.angular_control = None
         self.robot_comms = RobotComms()
+
+        self.last_time = time.time()
          
-    def get_data(self) -> RobotData:
+    def get_data(self) -> RobotState:
         self._update_data()
         return self.data
     
@@ -30,7 +33,7 @@ class Robot:
         return data.position
 
     def _update_data(self):
-        self.data : RobotData = self.world.get_robot(self.id, self.team)
+        self.data : RobotState = self.world.get_robot(self.id, self.team)
     
     def testing_follow_path(self, path : list[Vector2]):
         """ Follow path for testing """
@@ -51,12 +54,8 @@ class Robot:
         # TO DO: Change move_to -> loop_move_to
         """ Go to point avoiding any obstacle """
         self._update_data()
-        
-        #if self.task_point.distance_to(point) > 0.01:
-            # Creathe new task
         path = [point]
         self.linear_control.set_path(path, self.data)
-        self.task_point = point
         result = self.linear_control.follow_path(self.data)
         # Task finished
         if result:

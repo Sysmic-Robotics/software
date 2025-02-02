@@ -7,7 +7,7 @@ import time
 
 class AngularControl(Control):
 
-    def __init__(self, id, team, data : RobotData, angle : float):
+    def __init__(self, id, team, data : RobotState, angle : float):
         super().__init__(id, team)
         # Normalize angle, to avoid negative angles
         angle = abs(angle)%(math.pi*2)
@@ -18,7 +18,7 @@ class AngularControl(Control):
         self.PID = PID(2, 0.2, self.to_angle)
         self.robot_comms = RobotComms()
         
-    def control(self, data : RobotData) -> bool:
+    def control(self, data : RobotState) -> bool:
         super().control()
         
         # Normalize angle, to avoid negative angles
