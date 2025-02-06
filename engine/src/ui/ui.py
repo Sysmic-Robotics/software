@@ -78,7 +78,7 @@ class UI:
         # Limit the trace length to avoid excessive memory usage (e.g., last 100 points)
         #if len(self.robot_trace) > 100:
         #    self.robot_trace.pop(0)
-        self.draw_trace(self.robot_trace)
+        #self.draw_trace(self.robot_trace)
         
     def draw_ball(self, x, y):
         screen_x, screen_y = self.field_to_screen(x, y)

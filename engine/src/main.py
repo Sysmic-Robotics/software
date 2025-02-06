@@ -27,24 +27,18 @@ radio : RobotComms = RobotComms()
 robot : Robot = Robot(0, TeamColor.BLUE)
 kick_the_ball = KickTheBall(robot)
 
-
-start_time = time.time()
+ui = UI(world, vision)
 delta = 0
 while True:
-    current_time = time.time()
-    delta += current_time - start_time
-    start_time = current_time
-    if True:#delta > 0.016:
-        try:
-            # Attempt to get an update from the queue without waiting
-            data = vision_buffer.get(timeout= FRAME_RATE/2) # Non-blocking check
-            world.update_world(data)  # Update the world state
-        except queue.Empty:
-            pass
-
-        kick_the_ball.loop()
+    try:
+        # Attempt to get an update from the queue without waiting
+        data = vision_buffer.get(timeout= FRAME_RATE/2) # Non-blocking check
+        world.update_world(data)  # Update the world state
+    except queue.Empty:
+        pass
+    ui.loop()
+    robot.face_to(world.get_ball_pos())
  
-        radio.send_packets()
-        delta -= 0.016
+    radio.send_packets()
 
     #fps_counter.update()

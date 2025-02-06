@@ -4,7 +4,7 @@ from comms.sender.grsim import Grsim
 from constants import *
 import threading
 from sysmic_kit import Vector2, TeamColor
-from comms.sender.radio import Radio
+from comms.sender.radio_2 import Radio
 
 class RobotComms:
     _instance = None
@@ -47,23 +47,16 @@ class RobotComms:
                                                                                     packet['team'])
         else:
             packets = []
-
+            
             for robot_id in self.robot_packets.keys():
                 packet = self.robot_packets[robot_id]
-                p = []
                 if packet["has_data"] == True:
-                    p.append(packet['id'])
-                    p.append(packet['spinner'])
-                    p.append(packet['kick_x'])
-                    p.append(packet['velocity'].x)
-                    p.append(packet['velocity'].y)
-                    p.append(packet['angular'])
-
-                    packets.append(p)
-                    # Reset packet to default
+                    self.radio.add_to_robot_queue(robot_id=packet['id'], drb=packet['spinner'], 
+                                                  kick=packet['kick_x'], cb=0, x=packet['velocity'].x, 
+                                                  y=packet['velocity'].y, r= int(packet['angular']*2 ) )
                     self.robot_packets[robot_id]["has_data"] = self.create_packet(packet['id'],
                                                                                   packet['team'])
-            self.radio.send_packets(packets)
+            self.radio.send_data()
                     
 
     def send_robot_velocity(self, id : int, team : TeamColor, velocity : Vector2):
