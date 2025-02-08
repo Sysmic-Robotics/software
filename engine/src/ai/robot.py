@@ -1,5 +1,6 @@
 from sysmic_kit import *
 from control.bangbang_control import LinearControl
+from control.linear_pid import LinearControlPID
 from world.world import World
 from ai.task import TaskState
 from comms.sender.robot_coms import RobotComms
@@ -12,8 +13,14 @@ class Robot:
         self.id = id
         self.team = team
         self.world = World()
-        self.data : RobotState = self.world.get_robot(id, team)
+        self.state : RobotState = self.world.get_robot(id, team)
         self.linear_control : LinearControl = LinearControl(id, team)
+        #PID parameters x,y
+        self.Kp = 1
+        self.Ki = 0.5
+        self.Kd = 0.1
+
+        self.lineal_control_PID : LinearControlPID = LinearControlPID(id, team, self.state,self.Kp, self.Ki, self.Kd)
         
         self.in_linear_task = False
         self.task_point : Vector2 = Vector2(1000,1000)
@@ -24,26 +31,26 @@ class Robot:
 
         self.last_time = time.time()
          
-    def get_data(self) -> RobotState:
-        self._update_data()
-        return self.data
+    def get_state(self) -> RobotState:
+        self._update_state()
+        return self.state
     
     def get_position(self) -> Vector2:
-        data = self.get_data()
-        return data.position
+        state = self.get_state()
+        return state.position
 
-    def _update_data(self):
-        self.data : RobotState = self.world.get_robot(self.id, self.team)
+    def _update_state(self):
+        self.state : RobotState = self.world.get_robot(self.id, self.team)
     
     def testing_follow_path(self, path : list[Vector2]):
         """ Follow path for testing """
-        self._update_data()
+        self._update_state()
         """ This function is planned to be used in a loop > FRAME_RATE """
         if not self.in_linear_task:
             # Creathe new task
-            self.linear_control.set_path(path, self.data)
+            self.linear_control.set_path(path, self.state)
             self.in_linear_task = True
-        result = self.linear_control.follow_path(self.data)
+        result = self.linear_control.follow_path(self.state)
         # Task finished
         if result:
             self.in_linear_task = False
@@ -53,40 +60,49 @@ class Robot:
     def move_to(self, point : Vector2):
         # TO DO: Change move_to -> loop_move_to
         """ Go to point avoiding any obstacle """
-        self._update_data()
+        self._update_state()
         path = [point]
-        self.linear_control.set_path(path, self.data)
-        result = self.linear_control.follow_path(self.data)
+        self.linear_control.set_path(path, self.state)
+        result = self.linear_control.follow_path(self.state)
+        # Task finished
+        if result:
+            return True
+        return False
+    def move_to2(self, point : Vector2):
+        # TO DO: Change move_to -> loop_move_to
+        """ Go to point avoiding any obstacle """
+        self._update_state()
+        path = [point]
+        self.lineal_control_PID.set_path(path, self.state)
+        result = self.lineal_control_PID.follow_path(self.state)
         # Task finished
         if result:
             return True
         return False
         
     def face_to(self, point : Vector2) -> bool:
-        data = self.get_data()
-        if not self.in_angular_task:
+        state = self.get_state()
             # Creathe new task
-            angle_rads = (point - data.position).angle_with_x_axis()
-            if angle_rads < 0:
-                angle_rads += math.pi*2
-            angle_rads = angle_rads%( math.pi*2 )
-            self.angular_control = AngularControl(self.id, self.team, data, angle_rads)
-            self.in_angular_task = True
-        result = self.angular_control.control(data)
+        angle_rads = (point - state.position).angle_with_x_axis()
+        if angle_rads < 0:
+            angle_rads += math.pi*2
+        angle_rads = angle_rads%( math.pi*2 )
+
+        self.angular_control = AngularControl(self.id, self.team, state, angle_rads)
+        result = self.angular_control.control(state)
         # Task finished
         if result:
-            self.in_angular_task = False
             return True
         return False    
 
     def rotate_to(self, angle_rads : float) -> bool:
-        data = self.get_data()
+        state = self.get_state()
         if not self.in_angular_task:
             # Creathe new task
             angle_rads = angle_rads%( math.pi*2 )
-            self.angular_control = AngularControl(self.id, self.team, data, angle_rads)
+            self.angular_control = AngularControl(self.id, self.team, state, angle_rads)
             self.in_angular_task = True
-        result = self.angular_control.control(data)
+        result = self.angular_control.control(state)
         # Task finished
         if result:
             self.in_angular_task = False

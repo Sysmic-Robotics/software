@@ -12,7 +12,8 @@ from ai.skills.kick_the_ball import KickTheBall
 import queue
 
 # Initialize world
-world : World = World(1,1)
+n = 2
+world : World = World(n,n)
 
 vision_buffer = queue.Queue(5)
 vision : Vision = Vision(VISION_IP, VISION_PORT, vision_buffer)
@@ -24,7 +25,7 @@ radio : RobotComms = RobotComms()
 
 #ui : UI = UI(world, vision)
 # Game loop
-robot : Robot = Robot(0, TeamColor.BLUE)
+robot : Robot = Robot(1, TeamColor.BLUE)
 kick_the_ball = KickTheBall(robot)
 
 ui = UI(world, vision)
@@ -37,8 +38,10 @@ while True:
     except queue.Empty:
         pass
     ui.loop()
-    robot.face_to(world.get_ball_pos())
- 
+    #robot.face_to(world.get_ball_pos())
+    #robot.face_to(world.get_ball_pos())
+    #robot.move_to(world.get_ball_pos())
+    robot.move_to2(world.get_ball_pos())
     radio.send_packets()
 
     #fps_counter.update()

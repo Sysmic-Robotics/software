@@ -52,8 +52,8 @@ class RobotComms:
                 packet = self.robot_packets[robot_id]
                 if packet["has_data"] == True:
                     self.radio.add_to_robot_queue(robot_id=packet['id'], drb=packet['spinner'], 
-                                                  kick=packet['kick_x'], cb=0, x=packet['velocity'].x, 
-                                                  y=packet['velocity'].y, r= int(packet['angular']*2 ) )
+                                                  kick=packet['kick_x'], cb=0, x=int(packet['velocity'].x*-200), 
+                                                  y=int(packet['velocity'].y*100), r= int(packet['angular']*4 ) )
                     self.robot_packets[robot_id]["has_data"] = self.create_packet(packet['id'],
                                                                                   packet['team'])
             self.radio.send_data()
