@@ -16,11 +16,11 @@ class Robot:
         self.state : RobotState = self.world.get_robot(id, team)
         self.linear_control : LinearControl = LinearControl(id, team)
         #PID parameters x,y
-        self.Kp = 1
-        self.Ki = 0.5
+        self.Kp = 20
+        self.Ki = 10
         self.Kd = 0.1
 
-        self.lineal_control_PID : LinearControlPID = LinearControlPID(id, team, self.state,self.Kp, self.Ki, self.Kd)
+        self.lineal_control_PID : LinearControlPID = LinearControlPID(id, team, self.state, self.Kp, self.Ki, self.Kd)
         
         self.in_linear_task = False
         self.task_point : Vector2 = Vector2(1000,1000)
@@ -31,7 +31,7 @@ class Robot:
 
         self.last_time = time.time()
          
-    def get_state(self) -> RobotState:
+    def get_data(self) -> RobotState:
         self._update_state()
         return self.state
     
@@ -68,20 +68,31 @@ class Robot:
         if result:
             return True
         return False
+    
     def move_to2(self, point : Vector2):
         # TO DO: Change move_to -> loop_move_to
         """ Go to point avoiding any obstacle """
         self._update_state()
         path = [point]
         self.lineal_control_PID.set_path(path, self.state)
-        result = self.lineal_control_PID.follow_path(self.state)
+        vel = self.lineal_control_PID.compute(self.state,point)
+        vel.x = 1*vel.x
+        vel.y = 1*vel.y
+
+        Vmax = 50
+        vel.x = vel.x if vel.x < Vmax else Vmax
+        vel.x = vel.x if vel.x > -Vmax else -Vmax
+        vel.y = vel.y if vel.y < Vmax else Vmax
+        vel.y = vel.y if vel.y > -Vmax else -Vmax
+
+        self.robot_comms.send_robot_velocity(self.id, self.team, velocity=vel)
         # Task finished
-        if result:
+        if vel != None:
             return True
         return False
         
     def face_to(self, point : Vector2) -> bool:
-        state = self.get_state()
+        state = self.state
             # Creathe new task
         angle_rads = (point - state.position).angle_with_x_axis()
         if angle_rads < 0:
@@ -96,7 +107,7 @@ class Robot:
         return False    
 
     def rotate_to(self, angle_rads : float) -> bool:
-        state = self.get_state()
+        state = self.state
         if not self.in_angular_task:
             # Creathe new task
             angle_rads = angle_rads%( math.pi*2 )

@@ -14,14 +14,15 @@ class LinearControlPID:
         # Current goal
         self.goal : Vector2 = Vector2(10000,10000)
 
-        #Kinematic model a_max and v_max
-        self.A_MAX = 2.5
-        self.V_MAX = 5
 
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
 
         #Utility
         self.last_time = time.time()
-        last_state : RobotState = None
+        self.last_state : RobotState = state
+        self.error_last : RobotState = state.position - state.position
 
     def set_path(self, path : list[Vector2], state : RobotState):
         self.active = True
@@ -30,56 +31,26 @@ class LinearControlPID:
             self.active = False
             return
         self.goal = path.pop(0)
-
-    def follow_path(self, state : RobotState) -> bool:
-        """This function is planned to be used in a loop > 60Hz"""
-        # Run each FRAME_RATE [s]
-        if not self.active:
-            return True
-        current_time = time.time()
-        delta = current_time - self.last_time
-        if delta < FRAME_RATE/2:
-            return False
-        
-        self.last_time = current_time
-        
-        v = state.velocity
-        pos = state.position
-        new_traj = Trajectory2D(self.A_MAX, self.V_MAX, v, pos, self.goal)
-        v : Vector2 = new_traj.get_next_velocity()
-        
-        local_v = v.rotate(-state.orientation)
-        RobotComms().send_robot_velocity(state.id, state.team, velocity=local_v)
-
-        # Change the point to not desaccelerate
-        if len(self.path) != 0 and self.is_near_to_break(state, self.goal):
-            self.goal = self.path.pop(0)
-            return False
-        # Finish control
-        elif len(self.path) == 0 and pos.distance_to(self.goal) < 0.02:
-            self.active = False
-            return True
     
-    def follow_point(self, state_sp : RobotState) -> Vector2:
-        error = state_sp.position - self.state.position
-        error_last = self.last_state.position - self.state.position
-        error_dif = error - error_last
-        error_acum = error + error_last
+    def compute(self, state : RobotState , pointSp : Vector2) -> Vector2:
+        
+        error = pointSp - self.state.position
+        error_module = error.module()
+        if error_module < 0.05:
+            return Vector2(0,0)
+        error_angle = error.angle_with_x_axis()
 
-        vel = self.Kp * error + self.Ki * error_acum + self.Kd * error_dif
+        deltaT=5
+        error_dif = (error_module - self.error_last.module())/deltaT
+        error_acum = (error_module + self.error_last.module())*deltaT
 
-        error_last = error
+
+
+        vel_modulus = self.kp * error_module + self.ki * error_acum + self.kd * error_dif
+
+        vel = error.normalize() * vel_modulus*10
+        print(error.normalize())
+
+        self.error_last = error
+        self.last_state = state
         return vel
-
-
-
-
-    def is_near_to_break(self, robot : RobotState, point : Vector2) -> bool:
-        v = robot.velocity
-        pos = robot.position
-        dx_to_brake = ( (v.x**2)/(2*self.A_MAX) ) 
-        dy_to_brake = ( (v.y**2)/(2*self.A_MAX) )
-        if (dx_to_brake >= abs(pos.x - point.x) or
-            dy_to_brake >= abs(pos.y - point.y) ):
-                return True
-        return False

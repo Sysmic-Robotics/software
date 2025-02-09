@@ -40,8 +40,10 @@ while True:
     ui.loop()
     #robot.face_to(world.get_ball_pos())
     #robot.face_to(world.get_ball_pos())
-    #robot.move_to(world.get_ball_pos())
-    robot.move_to2(world.get_ball_pos())
+    #robot.move_to(world.get_ball_pos())p
+    #robot.face_to(world.get_ball_pos())
+    #robot.move_to2(world.get_ball_pos())
+    kick_the_ball.loop()
     radio.send_packets()
 
     #fps_counter.update()
