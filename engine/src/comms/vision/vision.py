@@ -93,6 +93,9 @@ class Vision:
             data.last_time_update = time.time()
             yellow_data.append(data)
 
-        ball_data = Vector2(ball.x/1000, ball.y/1000)
+        ball_data = BallData()
+        ball_data.position = Vector2(ball.x/1000, ball.y/1000)
+        ball_data.last_time_update = time.time()
+        
         all_data = (blue_data, yellow_data, ball_data)
         self.queue.put(all_data)

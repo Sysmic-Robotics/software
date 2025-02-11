@@ -49,8 +49,10 @@ class World():
         
         self._vision_ball_update(data[2])
     
-    def _vision_ball_update(self, ball : Vector2):
-        self.ball.position = ball
+    def _vision_ball_update(self, ball : BallData):
+        self.ball.position = ball.position
+        delta_t = ball.last_time_update - self.ball.last_time_update
+        self.ball.velocity = (ball.position - self.ball.position)/(delta_t)
 
     def _vision_robot_update(self, new_data : RobotState):
         if(not self._robot_exist(new_data.id, new_data.team)):
@@ -88,6 +90,9 @@ class World():
     def get_ball_pos(self) -> Vector2:
         self.is_getting = True
         return self.ball.position
+    
+    def get_ball(self) -> BallData:
+        return self.ball
     
     def get_robots_blue(self) -> list[RobotState]:
         return self.robots_blue.values()

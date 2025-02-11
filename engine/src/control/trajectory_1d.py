@@ -4,7 +4,7 @@ class Trajectory1D:
     def __init__(self, a_max : float, v_max : float, v0 : float, wf : float):
         # Check for valid inputs
         if a_max <= 0:
-            raise ValueError("Max velocity cant be 0")
+            raise ValueError("Max acceleration cant be 0")
         if v_max <= 0:
             raise ValueError("Max velocity cant be 0")
         

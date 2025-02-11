@@ -19,8 +19,9 @@ class ApproachBall(State):
         # Get ball position
         ball : Vector2 = self.world.get_ball_pos()
         pos = (self.robot.state.position - ball).normalize()*0.18 + ball
-        self.robot.move_to2(pos)
-        self.robot.face_to(ball)
+        self.robot.move_to(pos)
+        self.robot.face_to_agr(pos)
+        #self.robot.face_to(pos)
 
 
 class AimBall(State):
@@ -45,9 +46,9 @@ class Dribble(State):
         
     def loop(self):
         # Get ball position
-        self.robot.spinner(10)
+        self.robot.spinner(2)
         # If ball is not detected then pass to next state
-        self.robot.face_to(Vector2(0,0))
+        #self.robot.face_to(Vector2(0,0))
 
 
 class TouchBall(State):
@@ -69,8 +70,8 @@ class TouchBall(State):
         dir = (ball - self.robot.state.position).normalize()
         pos = ball + dir*(0.18/3)
         
-        self.robot.spinner(10)
-        self.robot.move_to2(pos)
+        self.robot.spinner(2)
+        self.robot.move_to(pos)
 
     
 class Kick(State):
@@ -81,8 +82,8 @@ class Kick(State):
     
     def loop(self):
         # Get ball position
-        self.robot.spinner(0)
-        self.robot.kick(2)
+        self.robot.spinner(2)
+        self.robot.kick(1)
 
 
 class KickTheBall(FiniteStateMachine):
@@ -102,20 +103,53 @@ class KickTheBall(FiniteStateMachine):
         self.world = World()
         self.debug = True
         
+#    def get_transition(self, state_name):
+#        if state_name == "stop":
+#            if self.robot.state.position.distance_to( self.world.ball.position) > 0.18 or not TransitionUtils.is_facing_point(self.robot, self.world.ball.position, 0.20):
+#                return self.states["aim_ball"]
+#        
+#        elif state_name == "approach":
+#            if self.robot.state.position.distance_to( self.world.ball.position) <= 0.18:
+#                return self.states["stop"]
+#            elif not TransitionUtils.is_facing_point(self.robot, self.world.ball.position, 0.20):
+#                return self.states["aim_ball"]
+        
+#        elif state_name == "aim_ball":
+#            if TransitionUtils.is_facing_point(self.robot, self.world.ball.position) and \
+#                abs(self.robot.state.angular_velocity) <= 0.01:
+#                return self.states["approach"]
+
     def get_transition(self, state_name):
         if state_name == "stop":
-            if self.robot.state.position.distance_to( self.world.ball.position) > 0.18:
-                return self.states["aim_ball"]
+            #if self.robot.state.position.distance_to( self.world.ball.position) > 0.18 or not TransitionUtils.is_facing_point(self.robot, self.world.ball.position, 0.20):
+            return self.states["aim_ball"]
         
         elif state_name == "approach":
-            if self.robot.state.position.distance_to( self.world.ball.position) <= 0.18:
-                return self.states["stop"]
-            elif not TransitionUtils.is_facing_point(self.robot, self.world.ball.position, 0.20):
+            if not TransitionUtils.is_facing_point(self.robot, self.world.ball.position):
                 return self.states["aim_ball"]
+            if self.robot.state.position.distance_to( self.world.ball.position) <= 0.18:
+                return self.states["touch_ball"]
         
         elif state_name == "aim_ball":
-            if TransitionUtils.is_facing_point(self.robot, self.world.ball.position) and \
-                abs(self.robot.state.angular_velocity) <= 0.01:
+            if TransitionUtils.is_facing_point(self.robot, self.world.ball.position):
                 return self.states["approach"]
+        
+        elif state_name == "touch_ball":
+            if self.robot.state.position.distance_to( self.world.ball.position) >= 0.36 or not TransitionUtils.is_facing_point(self.robot, self.world.ball.position):
+                return self.states["approach"]
+            elif self.robot.state.position.distance_to( self.world.ball.position) <= (0.18/2 + 0.012):
+                return self.states["dribble"]
+        
+        elif state_name == "dribble":
+            if (self.robot.state.position.distance_to( self.world.ball.position) >= 0.36):
+                return self.states["aim_ball"]
+            elif not TransitionUtils.is_facing_point(self.robot, self.world.ball.position):
+                return self.states["aim_ball"]
+            if TransitionUtils.is_facing_point(self.robot, self.world.ball.position) and \
+            abs(self.robot.state.angular_velocity) <= 0.01 and self.world.ball.velocity.module() <= 0.01:
+                return self.states["kick"]
 
+        elif state_name == "kick":
+            if (self.robot.state.position.distance_to( self.world.ball.position) >= 0.18/2 + 0.025):
+                return self.states["aim_ball"]
         return None 

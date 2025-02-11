@@ -3,6 +3,7 @@ from comms.sender.robot_coms import RobotComms
 from sysmic_kit import *
 from constants import *
 import time
+import math
 
 # Moves the robot throught set of points
 class LinearControlPID:
@@ -49,8 +50,12 @@ class LinearControlPID:
         vel_modulus = self.kp * error_module + self.ki * error_acum + self.kd * error_dif
 
         vel = error.normalize() * vel_modulus*10
-        print(error.normalize())
 
         self.error_last = error
         self.last_state = state
+
+        #rotation
+        vel = vel.rotate(-state.orientation)
+        vel.x = -vel.x
+        print(vel)
         return vel

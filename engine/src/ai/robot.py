@@ -5,6 +5,7 @@ from world.world import World
 from ai.task import TaskState
 from comms.sender.robot_coms import RobotComms
 from control.angular_control import AngularControl
+from control.angular_control_agr import AngularControlAgr
 import math
 import time
 
@@ -104,7 +105,22 @@ class Robot:
         # Task finished
         if result:
             return True
-        return False    
+        return False
+    
+    def face_to_agr(self, point : Vector2) -> bool:
+        state = self.state
+            # Creathe new task
+        angle_rads = (point - state.position).angle_with_x_axis()
+        if angle_rads < 0:
+            angle_rads += math.pi*2
+        angle_rads = angle_rads%( math.pi*2 )
+
+        self.angular_control = AngularControlAgr(self.id, self.team, state, angle_rads)
+        result = self.angular_control.control(state)
+        # Task finished
+        if result:
+            return True
+        return False      
 
     def rotate_to(self, angle_rads : float) -> bool:
         state = self.state

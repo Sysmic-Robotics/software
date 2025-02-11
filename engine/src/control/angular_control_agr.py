@@ -5,14 +5,14 @@ import math
 import time
 import constants
 
-class AngularControl(Control):
+class AngularControlAgr(Control):
 
     def __init__(self, id, team, data : RobotState, to_angle : float):
         super().__init__(id, team)
         # Normalize angle, to avoid negative angles
 
         self.to_angle = to_angle
-        self.PID = PID(80, 50 ,self.to_angle)
+        self.PID = PID(80, 80 ,self.to_angle)
         self.robot_comms = RobotComms()
         
     def control(self, data : RobotState) -> bool:

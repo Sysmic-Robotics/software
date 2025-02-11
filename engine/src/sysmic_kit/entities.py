@@ -10,6 +10,8 @@ class BallData:
     '''Clase que representa un balon, con sus atributos de posicion y confianza'''
     def __init__(self):
         self.position : Vector2 = Vector2(0,0)
+        self.last_time_update = 0 # in seconds
+        self.velocity : Vector2 = Vector2(0,0) # m/s
 
 class RobotState:
     '''Clase que representa un robot, con sus atributos de posicion y confianza'''

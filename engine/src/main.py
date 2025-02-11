@@ -25,7 +25,7 @@ radio : RobotComms = RobotComms()
 
 #ui : UI = UI(world, vision)
 # Game loop
-robot : Robot = Robot(1, TeamColor.BLUE)
+robot : Robot = Robot(0, TeamColor.BLUE)
 kick_the_ball = KickTheBall(robot)
 
 ui = UI(world, vision)

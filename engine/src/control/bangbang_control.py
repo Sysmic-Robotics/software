@@ -15,8 +15,8 @@ class LinearControl:
         self.goal : Vector2 = Vector2(10000,10000)
 
         #Kinematic model a_max and v_max
-        self.A_MAX = 2.5
-        self.V_MAX = 5
+        self.A_MAX = 1.5
+        self.V_MAX = 3
 
         #Utility
         self.last_time = time.time()
@@ -47,7 +47,8 @@ class LinearControl:
         v : Vector2 = new_traj.get_next_velocity()
         
         local_v = v.rotate(-data.orientation)
-        RobotComms().send_robot_velocity(data.id, data.team, velocity=local_v)
+        local_v.x = -local_v.x
+        RobotComms().send_robot_velocity(data.id, data.team, velocity=local_v*20)
 
         # Change the point to not desaccelerate
         if len(self.path) != 0 and self.is_near_to_break(data, self.goal):
